@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'rest-client'
+require 'json'
+require 'pp'
+
+RESOURCE_URI = 'http://localhost:4567/api'
+SITE = RestClient::Resource.new(RESOURCE_URI)
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: ct [options]"
+
+  opts.on("-t", "--tracker TRACKERID", "specify pivotal tracker story id") do |tracker_id|
+    options[:tracker_id] = tracker_id
+  end
+
+  opts.on("-e", "--event EVENT", "specify event: start, stop, resume, finish, reject, restart, pause, play") do |event|
+    options[:event] = event
+  end
+
+  opts.on("-r", "--reason REASON", "specify reason: cep, hardware, firmware, devops, it, other") do |reason|
+    options[:reason] = reason
+  end
+end.parse!
+
+if options[:tracker_id] && options[:event]
+  response = SITE['events'].post(
+    {
+      tracker_id: options[:tracker_id],
+      event: options[:event],
+      reason: options[:reason]
+    }.to_json
+  )
+
+  puts "[#{options[:event]}] event registered for story ##{options[:tracker_id]} !"
+  puts
+  puts response
+  puts
+else
+  puts "No action: missing required options!"
+end
