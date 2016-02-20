@@ -77,6 +77,15 @@ class CepTracker
     options.event = nil unless EVENTS.include?(options.event)
     options.reason = nil unless REASONS.include?(options.reason)
 
+    while options.tracker_id.nil?
+      puts "Please enter pivotal tracker id (no #):"
+      puts
+      tracker_id = gets.chomp
+      if valid_integer?(tracker_id)
+        options.tracker_id = tracker_id
+      end
+    end
+
     while options.event.nil?
       puts "Event type required."
       puts
@@ -114,6 +123,11 @@ class CepTracker
       options.extended_reason = gets.chomp
     end
 
+  end
+
+  def valid_integer?(val)
+    result = Integer(val) rescue false
+    !!result
   end
 
   def perform_firebase_action
